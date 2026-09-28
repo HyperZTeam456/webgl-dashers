@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Geometry Dash</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css?v=4.7.1">
+  <style>
+    html,body{margin:0;padding:0;height:100%;background:#000;overflow:hidden;}
+    #unity-container{position:absolute;width:100%;height:100%;}
+    #unity-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#000 !important;}
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width=960 height=540 tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"><img src="thumb_2.jpg" alt="Game Logo" id="unity-logo-img" /></div>
+      <div id="unity-game-name">Geometry Dash</div>
+      <div id="unity-company-name">HyperZHub</div>
+      <div id="unity-download-panel">
+        <div id="unity-progress-heading">
+          <div id="unity-loading-status" aria-live="polite">Loading...</div>
+          <div id="unity-progress-percent">0%</div>
+        </div>
+        <div id="unity-progress-bar-empty" class="is-indeterminate" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div id="unity-progress-details"><span id="unity-progress-bytes">Loading game files...</span></div>
+      </div>
+      <div id="custom-loading-spinner"><div class="spinner"></div><div class="spinner-text">Loading game</div></div>
+    </div>
+    <div id="unity-warning"></div>
+  </div>
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var progressPercent = document.querySelector("#unity-progress-percent");
+    var warningBanner = document.querySelector("#unity-warning");
+    var spinner = document.getElementById("custom-loading-spinner");
+    if (loadingBar) loadingBar.style.display = "block";
+    if (spinner) spinner.style.display = "flex";
+    function unityShowBanner(msg, type) {
+      if (!warningBanner) return;
+      var div = document.createElement('div');
+      div.textContent = String(msg);
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background:red;padding:10px;color:#fff;';
+      else { if (type == 'warning') div.style = 'background:yellow;padding:10px;';
+        setTimeout(function(){ if(div.parentNode) warningBanner.removeChild(div); warningBanner.style.display = warningBanner.children.length?'block':'none'; }, 5000); }
+      warningBanner.style.display = 'block';
+    }
+    var buildUrl = "Build";
+    var config = {
+      dataUrl: buildUrl + "/712e063afdb88359545550e49d140e07.data",
+      frameworkUrl: buildUrl + "/8979e097352ac82871796cf2a32482e6.framework.js",
+      codeUrl: buildUrl + "/06185c3aee1f0c54065b5ac8acdca556.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "HyperZHub",
+      productName: "Geometry Dash",
+      productVersion: "2.2.143",
+      showBanner: unityShowBanner,
+    };
+    canvas.style.background = "url('" + buildUrl + "/d3095e3577b59a7018559eec2c43dd99.jpg') center / cover";
+    var script = document.createElement("script");
+    script.src = buildUrl + "/7a2dbded24d57e056180125b1583e7c4.loader.js";
+    script.onload = () => {
+      createUnityInstance(canvas, config, function(progress) {
+        var p = Math.round(progress * 100);
+        if (progressBarFull) progressBarFull.style.width = p + "%";
+        if (progressPercent) progressPercent.textContent = p + "%";
+      }).then(function(unityInstance) {
+        window.unityInstance = unityInstance;
+        if (loadingBar) loadingBar.style.display = "none";
+        if (spinner) spinner.style.display = "none";
+      }).catch(function(message) {
+        if (loadingBar) loadingBar.style.display = "none";
+        if (spinner) spinner.style.display = "none";
+        unityShowBanner(message || "The game could not be started.", "error");
+      });
+    };
+    document.body.appendChild(script);
+    function resizeUnityCanvas() {
+      var c = document.getElementById('unity-canvas');
+      if (!c) return;
+      var ta = 16/9, ww = window.innerWidth, wh = window.innerHeight;
+      var nw = ww, nh = ww/ta;
+      if (nh > wh) { nh = wh; nw = nh*ta; }
+      c.style.width = nw+'px'; c.style.height = nh+'px';
+    }
+    window.addEventListener("load", resizeUnityCanvas);
+    window.addEventListener("resize", resizeUnityCanvas);
+    window.addEventListener("orientationchange", resizeUnityCanvas);
+  </script>
+</body>
+</html>
